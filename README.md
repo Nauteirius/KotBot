@@ -18,7 +18,7 @@ get random picture of cat from local folders with cat pics
 !roll_dice 
 simulated rolling the dice, need to be given: number of dices, number of sides
 
-Bot everyday send random message from list of poke_messages on specified channel
+Bot on fixed intervals send random message from list of poke_messages on specified channel
 
 There are more utilities which are subject to change
 
