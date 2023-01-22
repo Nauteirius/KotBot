@@ -12,11 +12,14 @@ command give prompts and options to one of various stabble diffusion models, whi
 !catgen
 Instantly send unique picture of computer generated cat image from internet site
 
+!ask
+Send unique reply to given prompt. Remembers context of conversation between subsequents prompts.
+
 !cat
-get random picture of cat from local folders with cat pics
+Get random picture of cat from local folders with cat pics
 
 !roll_dice 
-simulated rolling the dice, need to be given: number of dices, number of sides
+Simulated rolling the dice, need to be given: number of dices, number of sides
 
 Bot on fixed intervals send random message from list of poke_messages on specified channel
 
