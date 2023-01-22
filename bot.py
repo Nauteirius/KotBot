@@ -16,7 +16,7 @@ from apscheduler.triggers.cron import CronTrigger
 from dotenv import load_dotenv
 from selenium.common import UnexpectedAlertPresentException
 from selenium.webdriver import Keys
-
+import openai
 from vars import *
 
 #sys.path.append("/mnt/d/stu/prog/python/modules/")
@@ -27,7 +27,8 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
 CHANNEL = os.getenv('DISCORD_CHANNEL')
-
+OAIKEY = os.getenv('OAIkey')
+previous_response=chatpreprompt #for context
 intents = discord.Intents(messages=True, guilds=True)
 intents.members = True
 bot = commands.Bot(command_prefix='!')
@@ -39,6 +40,7 @@ async def on_ready():
     print("Ready")
 
     # initializing scheduler
+
     scheduler = AsyncIOScheduler()
 
 
@@ -61,7 +63,7 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    
+
     if message.content == "1":
         await message.channel.send('1')
 
@@ -75,6 +77,13 @@ async def on_error(event, *args, **kwargs):
             f.write(f'Unhandled message: {args[0]}\n')
         else:
             raise
+@bot.event
+async def on_message(message):
+
+    if message.content.startswith('!'):
+        #print(message)
+        await bot.process_commands(message)
+
 
 @bot.event
 async def on_member_join(member):
@@ -296,6 +305,42 @@ async def poke():
 #@bot.command(name='temp')
 async def temp(ctx):
     pass
+
+
+
+@bot.command(name='ask', help='Ask me for any advice')
+async def chatgpt(ctx, *, prompt):
+    global previous_response
+    # Use the OpenAI API to generate a response to the prompt
+    prompt = prompt.replace("!ask", "")
+    #preprompt='' #can set some settings before actual prompt
+    #prompt = preprompt + prompt
+    #session_id = openai.Session.create(api_key=OAIKEY)
+    response = openai.Completion.create(
+        engine="text-davinci-002",
+        prompt=previous_response + prompt,
+        api_key=OAIKEY,
+        max_tokens=500,
+        n=1
+    )
+    #previous_response+= prompt
+
+    # Send the response to the Discord channel
+    #await ctx.send('Thinking...')
+    if response is not None:
+        for choice in response.choices:
+             #await ctx.send('responseChoices: ' + str(len(response.choices)))
+             choice.text=choice.text.replace("?\n\n","")
+             previous_response= previous_response + choice.text[:min(2000, len(choice.text))]
+             #await ctx.send("previous response: "+previous_response)
+             await ctx.send(choice.text[:min(2000, len(choice.text))])
+
+    #await ctx.send(response.text)
+
+
+    #await ctx.send(response.choices[0].text)
+
+
 
 @bot.command(name='roll_dice', help='Simulates rolling dice.')
 async def roll(ctx, number_of_dice: int, number_of_sides: int):
